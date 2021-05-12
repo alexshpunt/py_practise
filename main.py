@@ -1,6 +1,6 @@
 import sys 
 import unittest
-import demos.demo_graphalg as demos
+import demos.graphs.demo as demos
 import tests.test_graphalgs as tests 
 
 class EntryPoint: 
