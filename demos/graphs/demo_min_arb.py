@@ -1,7 +1,7 @@
 from demos.graphs.demo_util import *
 
-import pyalgprac.graphs.input_data as graphInput
-import pyalgprac.graphs.min_arb as minArborescence
+import algs.graphs.input_data as graphInput
+import algs.graphs.min_arb as minArborescence
 
 def demo_edmonds_alg():
     print("Original graph:")

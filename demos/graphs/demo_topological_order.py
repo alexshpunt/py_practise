@@ -1,7 +1,7 @@
 from demos.graphs.demo_util import *
-from pyalgprac.graphs.topological_order import *
+from algs.graphs.topological_order import *
 
-import pyalgprac.graphs.input_data as graphInput
+import algs.graphs.input_data as graphInput
 
 def demo_topological_order_search():
     print("Original acycle directed graph:")

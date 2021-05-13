@@ -1,7 +1,7 @@
 from demos.graphs.demo_util import *
 
-import pyalgprac.graphs.input_data as graphInput
-import pyalgprac.graphs.search as graphSearch
+import algs.graphs.input_data as graphInput
+import algs.graphs.search as graphSearch
 
 
 def demo_dijkstra_search():

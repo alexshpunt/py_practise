@@ -1,7 +1,7 @@
 from demos.graphs.demo_util import *
 
-import pyalgprac.graphs.input_data as graphInput
-import pyalgprac.graphs.single_linkage_cluster as singleLinkageCluster
+import algs.graphs.input_data as graphInput
+import algs.graphs.single_linkage_cluster as singleLinkageCluster
 
 def demo_single_linkage_clustering_naive():
     print("Original graph:")

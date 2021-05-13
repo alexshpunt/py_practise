@@ -1,7 +1,7 @@
 from demos.graphs.demo_util import *
 
-import pyalgprac.graphs.input_data as graphInput
-import pyalgprac.graphs.min_span_tree as minSpanningTree
+import algs.graphs.input_data as graphInput
+import algs.graphs.min_span_tree as minSpanningTree
 
 def demo_prims_alg():
     print("Original graph:")

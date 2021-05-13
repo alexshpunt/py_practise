@@ -1,10 +1,10 @@
 import unittest 
-import pyalgprac.graphs.input_data as graphInput
-import pyalgprac.graphs.min_arb as minArborescence
-import pyalgprac.graphs.search as graphSearch
-import pyalgprac.graphs.min_span_tree as minSpanningTree
-import pyalgprac.graphs.single_linkage_cluster as singleLinkageCluster
-from pyalgprac.graphs.topological_order import *
+import algs.graphs.input_data as graphInput
+import algs.graphs.min_arb as minArborescence
+import algs.graphs.search as graphSearch
+import algs.graphs.min_span_tree as minSpanningTree
+import algs.graphs.single_linkage_cluster as singleLinkageCluster
+from algs.graphs.topological_order import *
 
 #TODO: Write better test cases later!
 class TestGraphAlgs(unittest.TestCase):
