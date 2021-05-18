@@ -55,7 +55,6 @@ def generate_points():
 def points_array(x,y): return list(zip(x,y))
 def coords_array(p): return list(zip(*p))
 
-
 def show_module():
     def show_plot(searchFunc):
         fig = plt.figure(figsize=(8,8))
