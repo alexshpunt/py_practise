@@ -1,10 +1,13 @@
 import matplotlib.pyplot as plt 
 import math 
 import numpy as np 
-    
+
+#Computes a and b parameters of the line (ax + b)
+#which has the minimal error for the each point in the 
+#points list 
 def compute_line_AB(points : list):
     n = len(points)
-    if n == 0: return (1,0)
+    if n == 0: return (0,0)
     sX = sY = sXY = sX2 = 0
 
     for x,y in points: 
@@ -18,6 +21,8 @@ def compute_line_AB(points : list):
     b = (sY - a * sX) / n
     return (a,b)
 
+#Computes an error of all the points to the 
+#line defined by (a,b) parameters of (ax+b) function 
 def error_L(points : list, lineAB):
     error = 0 
     a,b = lineAB
@@ -26,36 +31,35 @@ def error_L(points : list, lineAB):
     return error 
 
 def solve(points : list):
+    cachedResults = {}
     def find_error(i,j):
+        if (i,j) in cachedResults.keys(): return cachedResults[i,j]
         p = points[i:j+1]
-        return error_L(p, compute_line_AB(p))
+        e = error_L(p, compute_line_AB(p))
+        cachedResults[i,j] = e
+        return e
 
     n = len(points)
-    err = {} 
-    for i in range(n):
-        for j in range(n):
-            if i > j: continue        
-            e = 0
-            if i != j: e = find_error(i,j) 
-            err[(i,j)] = e
-    
-    gError = find_error(0, n) 
-    C = max(0.01, gError / 10)
-    M = [10000] * n
-    M[0] = C
-    I = [-1] * n
+    err = {}
+    for i,j in [(i,j) for i in range(n) for j in range(i,n)]:
+        err[i,j] = find_error(i,j) if i != j else 0 
 
-    for j in range(0, n):
-        for i in range(0, j):
-            cost = err[i,j] + C + M[i]
-            if M[j] > cost: 
-                M[j] = cost 
-                I[j] = i 
+    #Optimal solution 
+    Opt = [10000] * n 
+    Opt[0] = 0 
+    #The next point of the i segment 
+    #of the optimial solution
+    Seg = [-1] * n 
+
+    lineCost = max(SAMPLES_ERROR_FACTOR, find_error(0,n-1) / POINTS_NUMBER)
+    for i,j in [(i,j) for j in range(0,n) for i in range(0,j)]:
+        cost = err[i,j] + lineCost + Opt[i]
+        if Opt[j] > cost: Opt[j], Seg[j] = cost, i
 
     i = n-1
     while i > 0:
-        yield i, I[i] 
-        i = I[i]     
+        yield i, Seg[i] 
+        i = Seg[i]     
 
 #Demo
 POINTS_NUMBER = 100
