@@ -1,85 +1,94 @@
 import numpy
-from numpy.core.numeric import extend_all
 
-def seq_align(str1, str2):
-    d = 2.0 
-    s1, s2 = list(str1), list(str2)
-    m, n = len(s1), len(s2)
+def get_align_pairs(O, i, j):
+    while i != 0:
+        if i != j: yield i,j
 
-    def compare(c1, c2):
-        if c1 == c2: return 0 
-        vowel = "aeiou"
-        return 1.0 if (c1 in vowel) == (c2 in vowel) else 3.0
-
-    O = numpy.zeros((m+1, n+1))
-    for i in range(m+1): O[i, 0] = i * d 
-    for j in range(n+1): O[0, j] = j * d
-
-    for i in range(1, m+1):
-        for j in range(1, n+1): 
-            a = compare(s1[i-1], s2[j-1])
-            O[i,j] = min(a + O[i-1, j-1], d + min(O[i-1, j], O[i, j-1]))
-    
-    align = [] 
-
-    i, j = m, n
-    while i != 0: 
-        if i != j: align.append((i,j))
-            
         diag = O[i-1, j-1] 
         left = O[i-1, j]
         right = O[i, j-1]
 
-        minD = min(diag, left, right)
-        if minD == diag: i,j = i-1, j-1
-        elif minD == left: i -= 1 
-        else: j -= 1 
+        minCost = min(diag, left, right)
+        if minCost in [diag, left]: i -= 1 
+        if minCost in [diag, right]: j -= 1        
 
-    alignLen = max(m, n)
-    mid = alignLen // 4
-    extension = ['-'] * alignLen
-    align1 = list(s1)
-    align1.extend(extension)
-    align2 = list(s2)
-    align2.extend(extension) 
-
+def get_alignment(pairs, s1, s2):
+    #Helper function which will shift the character by index 'i' 
+    #to the 'j' position. If the 'j' position is not '-' (gap)
+    #then it will try to move the 'j' character first, basically 
+    #pushing it forward
     def shift(arr, i, j):
         if j >= len(arr): return 
-        if arr[j] != '-': 
-            shift(arr, j, j+1)            
-        arr[j] = arr[i]
-        arr[i] = '-'
+        if arr[j] != '-': shift(arr, j, j+1)            
+        arr[j], arr[i] = arr[i], '-'
 
-    if len(align1) < len(align2): align1, align2 = align2, align1
-    for i,j in align: shift(align2, j-1, i-1)
+    m, n = len(s1), len(s2)
+
+    extension = ['-'] * min(m,n)
+    s1.extend(extension)
+    s2.extend(extension) 
+
+    if len(s1) < len(s2): s1, s2 = s2, s1
+    for i,j in pairs: shift(s2, j-1, i-1)
     
-    lastSkip = len(align1)
-    while lastSkip > len(align2) and align1[-1] == '-': lastSkip -= 1
-    align1 = align1[:lastSkip]
+    #We need to trim all the gaps in the longest string until it's 
+    #either the same lengh as the second string, or there is no gap left 
+    lastGapPos = len(s1)
+    while lastGapPos > len(s2) and s1[-1] == '-': lastGapPos -= 1
+    s1 = s1[:lastGapPos]
 
-    while True: 
-        lastSkip -= 1
-        if align1[lastSkip] != align2[lastSkip] or align1[lastSkip] != '-': break;
-    align1 = align1[:lastSkip+1]
-    align2 = align2[:lastSkip+1]
+    #Then we want to trim all possible "-" in both strings, until we have a mismatch
+    #for example '-' and any other character 
+    lastGapPos -= 1
+    while s1[lastGapPos] == s2[lastGapPos] and s1[lastGapPos] == '-': lastGapPos -= 1
+    return s1[:lastGapPos+1], s2[:lastGapPos+1]
 
-    print(align)
-    print(align1)
-    print(align2)
-    return O[m, n]
+def seq_align(str1, str2):
+    #Function which will return the cost of the mismatch characters 
+    #If they are identical the cost = 0
+    #If they are both vowels or consonants then the cost = 1
+    #Otherwise Cost = 3
+    def mismatch_cost(ch1, ch2):
+        if ch1 == ch2: return 0 
+        vowel = "aeiou"
+        return 1.0 if (ch1 in vowel) == (ch2 in vowel) else 3.0
+
+    gapPenalty = 2.0 
+    s1, s2 = list(str1), list(str2)
+    m, n = len(s1), len(s2)
+
+    O = numpy.zeros((m+1, n+1))
+    for i in range(m+1): O[i, 0] = i * gapPenalty 
+    for j in range(n+1): O[0, j] = j * gapPenalty
+
+    for i in range(1, m+1):
+        for j in range(1, n+1): 
+            a = mismatch_cost(s1[i-1], s2[j-1])
+            O[i,j] = min(a + O[i-1, j-1], gapPenalty + min(O[i-1, j], O[i, j-1]))
+    
+    pairs = list(get_align_pairs(O, m, n))
+    align1, align2 = get_alignment(pairs, s1, s2)
+
+    return pairs, align1, align2, O[m, n]
 
 tests = [
     ("mean", "name"),
-    ("stop", "stop"),
-    ("stop", "stpz"),
+    # ("stop", "stop"),
+    # ("stop", "stpz"),
     ("stop", "tops"),
     ("ocurrance", "occurrence"),
     ("stop", "post"),
-    ("abcde", "abcde"),
-    ("abcde", "acbde"),
-    ("abcde", "adzbe"),
-    ("abcde", "baedx")
+    # ("abcde", "abcde"),
+    # ("abcde", "acbde"),
+    # ("abcde", "adzbe"),
+    # ("abcde", "baedx")
 ]
 
 for s1, s2 in tests: 
-    print( (s1, s2), seq_align(s1, s2))
+    pairs, align1, align2, difference = seq_align(s1, s2)
+    print(f"For the test words {s1,s2} with {difference} difference, there is an alignment:")
+    print(f"\t{align1}\n\t{align2}")
+    if pairs: 
+        print(f"with the next pairs:")
+        print(f"\t{pairs}")
+    else: print("with zero pairs, as they are the same words\n")
