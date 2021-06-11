@@ -1,7 +1,7 @@
 import numpy
 
 def get_align_pairs(O, i, j):
-    while i != 0:
+    while i != 0 and j != 0:
         if i != j: yield i,j
 
         diag = O[i-1, j-1] 
@@ -24,22 +24,14 @@ def get_alignment(pairs, s1, s2):
 
     m, n = len(s1), len(s2)
 
-    extension = ['-'] * min(m,n)
+    extension = ['-'] * max(m,n)
     s1.extend(extension)
     s2.extend(extension) 
 
     if len(s1) < len(s2): s1, s2 = s2, s1
     for i,j in pairs: shift(s2, j-1, i-1)
     
-    #We need to trim all the gaps in the longest string until it's 
-    #either the same lengh as the second string, or there is no gap left 
-    lastGapPos = len(s1)
-    while lastGapPos > len(s2) and s1[-1] == '-': lastGapPos -= 1
-    s1 = s1[:lastGapPos]
-
-    #Then we want to trim all possible "-" in both strings, until we have a mismatch
-    #for example '-' and any other character 
-    lastGapPos -= 1
+    lastGapPos = len(s2) - 1
     while s1[lastGapPos] == s2[lastGapPos] and s1[lastGapPos] == '-': lastGapPos -= 1
     return s1[:lastGapPos+1], s2[:lastGapPos+1]
 
@@ -73,15 +65,12 @@ def seq_align(str1, str2):
 
 tests = [
     ("mean", "name"),
-    # ("stop", "stop"),
-    # ("stop", "stpz"),
+    ("stop", "stop"),
+    ("zaco", "azoc"),
     ("stop", "tops"),
     ("ocurrance", "occurrence"),
     ("stop", "post"),
-    # ("abcde", "abcde"),
-    # ("abcde", "acbde"),
-    # ("abcde", "adzbe"),
-    # ("abcde", "baedx")
+    ("abcde", "ab"),
 ]
 
 for s1, s2 in tests: 
@@ -91,4 +80,5 @@ for s1, s2 in tests:
     if pairs: 
         print(f"with the next pairs:")
         print(f"\t{pairs}")
-    else: print("with zero pairs, as they are the same words\n")
+    elif difference == 0: print("with zero pairs, as they are the same words\n")
+    else: print("with zero pairs, as they are completely different\n")
