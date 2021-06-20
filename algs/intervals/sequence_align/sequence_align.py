@@ -1,4 +1,5 @@
 import numpy
+from sequence_align_helpers import *
 
 def get_align_pairs(O, i, j):
     while i != 0 and j != 0:
@@ -35,18 +36,8 @@ def get_alignment(pairs, s1, s2):
     while s1[lastGapPos] == s2[lastGapPos] and s1[lastGapPos] == '-': lastGapPos -= 1
     return s1[:lastGapPos+1], s2[:lastGapPos+1]
 
-def seq_align(str1, str2):
-    #Function which will return the cost of the mismatch characters 
-    #If they are identical the cost = 0
-    #If they are both vowels or consonants then the cost = 1
-    #Otherwise Cost = 3
-    def mismatch_cost(ch1, ch2):
-        if ch1 == ch2: return 0 
-        vowel = "aeiou"
-        return 1.0 if (ch1 in vowel) == (ch2 in vowel) else 3.0
-
-    gapPenalty = 2.0 
-    s1, s2 = list(str1), list(str2)
+def seq_align(s1, s2):
+    s1, s2 = list(s1), list(s2)
     m, n = len(s1), len(s2)
 
     O = numpy.zeros((m+1, n+1))
@@ -56,22 +47,28 @@ def seq_align(str1, str2):
     for i in range(1, m+1):
         for j in range(1, n+1): 
             a = mismatch_cost(s1[i-1], s2[j-1])
-            O[i,j] = min(a + O[i-1, j-1], gapPenalty + min(O[i-1, j], O[i, j-1]))
+            O[i,j] = min(a + O[i-1, j-1], gapPenalty + O[i-1, j], gapPenalty + O[i, j-1])
+
+    pairs = list(get_align_pairs(O, m, n))
+    align1, align2 = get_alignment(pairs, s1, s2)
+    return pairs, align1, align2, O[m, n]
+
+def back_seq_align(s1, s2):
+    s1, s2 = list(s1), list(s2)
+    m, n = len(s1), len(s2)
+
+    O = numpy.zeros((m+1, n+1))
+    for i in range(m+1): O[m, i] = (m-i) * gapPenalty 
+    for j in range(n+1): O[j, n] = (n-j) * gapPenalty
+
+    for i in reversed(range(m)):
+        for j in reversed(range(n)): 
+            a = mismatch_cost(s1[i], s2[j])
+            O[i,j] = min(a + O[i+1, j+1], gapPenalty + min(O[i+1, j], O[i, j+1]))
     
     pairs = list(get_align_pairs(O, m, n))
     align1, align2 = get_alignment(pairs, s1, s2)
-
-    return pairs, align1, align2, O[m, n]
-
-tests = [
-    ("mean", "name"),
-    ("stop", "stop"),
-    ("zaco", "azoc"),
-    ("stop", "tops"),
-    ("ocurrance", "occurrence"),
-    ("stop", "post"),
-    ("abcde", "ab"),
-]
+    return pairs, align1, align2, O[0, 0]
 
 for s1, s2 in tests: 
     pairs, align1, align2, difference = seq_align(s1, s2)
