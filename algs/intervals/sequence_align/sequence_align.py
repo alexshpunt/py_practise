@@ -1,4 +1,5 @@
 import numpy
+from numpy.core.arrayprint import BoolFormat
 from sequence_align_helpers import *
 
 def get_align_pairs(O, i, j):
@@ -14,27 +15,24 @@ def get_align_pairs(O, i, j):
         if minCost in [diag, right]: j -= 1        
 
 def get_alignment(pairs, s1, s2):
-    #Helper function which will shift the character by index 'i' 
-    #to the 'j' position. If the 'j' position is not '-' (gap)
-    #then it will try to move the 'j' character first, basically 
-    #pushing it forward
-    def shift(arr, i, j):
-        if j >= len(arr): return 
-        if arr[j] != '-': shift(arr, j, j+1)            
-        arr[j], arr[i] = arr[i], '-'
+    if len(pairs) == 0: return s1, s2
 
     m, n = len(s1), len(s2)
+    c1, c2 = [], []
+    ipairs, jpairs = zip(*sorted(pairs))
+    i,j = 1,1 
+    while i <= m or j <= n: 
+        iIsNotGap = j in jpairs or j > n 
+        jIsNotGap = i in ipairs or i > m
+        addBoth = not iIsNotGap and not jIsNotGap
+        if addBoth: iIsNotGap = jIsNotGap = True 
 
-    extension = ['-'] * max(m,n)
-    s1.extend(extension)
-    s2.extend(extension) 
+        c1 += s1[i-1] if iIsNotGap else '-'
+        c2 += s2[j-1] if jIsNotGap else '-'
 
-    if len(s1) < len(s2): s1, s2 = s2, s1
-    for i,j in pairs: shift(s2, j-1, i-1)
-    
-    lastGapPos = len(s2) - 1
-    while s1[lastGapPos] == s2[lastGapPos] and s1[lastGapPos] == '-': lastGapPos -= 1
-    return s1[:lastGapPos+1], s2[:lastGapPos+1]
+        i += int(iIsNotGap)
+        j += int(jIsNotGap)
+    return c1, c2
 
 def seq_align(s1, s2):
     s1, s2 = list(s1), list(s2)
@@ -51,7 +49,7 @@ def seq_align(s1, s2):
 
     pairs = list(get_align_pairs(O, m, n))
     align1, align2 = get_alignment(pairs, s1, s2)
-    return pairs, align1, align2, O[m, n]
+    return pairs, align1, align2, O[m, n], O
 
 def back_seq_align(s1, s2):
     s1, s2 = list(s1), list(s2)
@@ -68,14 +66,15 @@ def back_seq_align(s1, s2):
     
     pairs = list(get_align_pairs(O, m, n))
     align1, align2 = get_alignment(pairs, s1, s2)
-    return pairs, align1, align2, O[0, 0]
+    return pairs, align1, align2, O[0, 0], O
 
-for s1, s2 in tests: 
-    pairs, align1, align2, difference = seq_align(s1, s2)
-    print(f"For the test words {s1,s2} with {difference} difference, there is an alignment:")
-    print(f"\t{align1}\n\t{align2}")
-    if pairs: 
-        print(f"with the next pairs:")
-        print(f"\t{pairs}")
-    elif difference == 0: print("with zero pairs, as they are the same words\n")
-    else: print("with zero pairs, as they are completely different\n")
+def test():
+    for s1, s2 in tests: 
+        pairs, align1, align2, difference, opt = seq_align(s1, s2)
+        print(f"For the test words {s1,s2} with {difference} difference, there is an alignment:")
+        print(f"\t{align1}\n\t{align2}")
+        if pairs: 
+            print(f"with the next pairs:")
+            print(f"\t{pairs}")
+        elif difference == 0: print("with zero pairs, as they are the same words\n")
+        else: print("with zero pairs, as they are completely different\n")

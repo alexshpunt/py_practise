@@ -17,5 +17,6 @@ tests = [
     ("stop", "tops"),
     ("ocurrance", "occurrence"),
     ("stop", "post"),
-    ("abcde", "ab"),
+    ("ab", "abc"),
+    ("abc", "ab"),
 ]
