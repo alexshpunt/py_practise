@@ -3,16 +3,15 @@ from numpy.core.arrayprint import BoolFormat
 from sequence_align_helpers import *
 
 def get_align_pairs(O, i, j):
-    while i != 0 and j != 0:
-        if i != j: yield i,j
-
+    while i != 1 and j != 1:
         diag = O[i-1, j-1] 
-        left = O[i-1, j]
-        right = O[i, j-1]
+        down, left = O[i-1, j], O[i, j-1]
 
-        minCost = min(diag, left, right)
-        if minCost in [diag, left]: i -= 1 
-        if minCost in [diag, right]: j -= 1        
+        minCost = min(diag, down, left)
+        if minCost in [diag, down]: i -= 1
+        if minCost in [diag, left]: j -= 1
+
+        if i != j: yield i,j        
 
 def get_alignment(pairs, s1, s2):
     if len(pairs) == 0: return s1, s2
@@ -24,8 +23,7 @@ def get_alignment(pairs, s1, s2):
     while i <= m or j <= n: 
         iIsNotGap = j in jpairs or j > n 
         jIsNotGap = i in ipairs or i > m
-        addBoth = not iIsNotGap and not jIsNotGap
-        if addBoth: iIsNotGap = jIsNotGap = True 
+        if not(iIsNotGap or jIsNotGap): iIsNotGap = jIsNotGap = True 
 
         c1 += s1[i-1] if iIsNotGap else '-'
         c2 += s2[j-1] if jIsNotGap else '-'
@@ -77,4 +75,6 @@ def test():
             print(f"with the next pairs:")
             print(f"\t{pairs}")
         elif difference == 0: print("with zero pairs, as they are the same words\n")
-        else: print("with zero pairs, as they are completely different\n")
+        else: print("with zero pairs, so either they are completely different",
+                    "or one word is a substring of another\n")
+test()
