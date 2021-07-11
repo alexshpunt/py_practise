@@ -83,6 +83,22 @@ DiGraph.add_edges_from(
         (5,6, {"weight": 23}),
     ]
 )
+
+DiNegGraph = nx.DiGraph()
+DiNegGraph.add_edges_from(
+    [
+        ('a', 'b', {"weight": -4}),
+        ('a', 't', {"weight": -3}),
+        ('b', 'd', {"weight": -1}),
+        ('b', 'e', {"weight": -2}),
+        ('c', 'b', {"weight": 8}),
+        ('c', 't', {"weight": 3}),
+        ('d', 'a', {"weight": 6}),
+        ('d', 't', {"weight": 4}),
+        ('e', 'c', {"weight": -3}),
+        ('e', 't', {"weight": 2}),
+    ]
+)
 #######################################################
 def CreateClusterableGraph():
     G = nx.Graph()
