@@ -13,25 +13,6 @@ def get_align_pairs(O, i, j):
 
         if i != j: yield i,j        
 
-def get_alignment(pairs, s1, s2):
-    if len(pairs) == 0: return s1, s2
-
-    m, n = len(s1), len(s2)
-    c1, c2 = [], []
-    ipairs, jpairs = zip(*sorted(pairs))
-    i,j = 1,1 
-    while i <= m or j <= n: 
-        iIsNotGap = j in jpairs or j > n 
-        jIsNotGap = i in ipairs or i > m
-        if not(iIsNotGap or jIsNotGap): iIsNotGap = jIsNotGap = True 
-
-        c1 += s1[i-1] if iIsNotGap else '-'
-        c2 += s2[j-1] if jIsNotGap else '-'
-
-        i += int(iIsNotGap)
-        j += int(jIsNotGap)
-    return c1, c2
-
 def seq_align(s1, s2):
     s1, s2 = list(s1), list(s2)
     m, n = len(s1), len(s2)
@@ -45,9 +26,7 @@ def seq_align(s1, s2):
             a = mismatch_cost(s1[i-1], s2[j-1])
             O[i,j] = min(a + O[i-1, j-1], gapPenalty + O[i-1, j], gapPenalty + O[i, j-1])
 
-    pairs = list(get_align_pairs(O, m, n))
-    align1, align2 = get_alignment(pairs, s1, s2)
-    return pairs, align1, align2, O[m, n], O
+    return list(get_align_pairs(O, m, n))
 
 def back_seq_align(s1, s2):
     s1, s2 = list(s1), list(s2)
@@ -62,13 +41,16 @@ def back_seq_align(s1, s2):
             a = mismatch_cost(s1[i], s2[j])
             O[i,j] = min(a + O[i+1, j+1], gapPenalty + min(O[i+1, j], O[i, j+1]))
     
-    pairs = list(get_align_pairs(O, m, n))
-    align1, align2 = get_alignment(pairs, s1, s2)
-    return pairs, align1, align2, O[0, 0], O
+    return list(get_align_pairs(O, m, n))
 
 def test():
     for s1, s2 in tests: 
-        pairs, align1, align2, difference, opt = seq_align(s1, s2)
+        print("----------------------------------------------------------")
+        print("Sequence Alignment:")
+        print("----------------------------------------------------------")
+        pairs = seq_align(s1, s2)
+        align1, align2 = get_alignment(pairs, s1, s2)
+        difference = get_difference(align1, align2)
         print(f"For the test words {s1,s2} with {difference} difference, there is an alignment:")
         print(f"\t{align1}\n\t{align2}")
         if pairs: 
