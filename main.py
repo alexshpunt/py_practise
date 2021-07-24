@@ -28,4 +28,4 @@ if __name__ == "__main__":
     elif arg == ["help"]: 
         print(EntryPoint.__doc__.strip())
     else: 
-        demos.demo_bellman_ford()
+        demos.demo_async_bellman_ford()
