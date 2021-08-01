@@ -20,7 +20,6 @@ We already implemented that in the Bellman-Ford alg improvement,
 so this time we will do an async variant of the same algorithm. 
 """
 import networkx as nx
-from networkx.algorithms.components import attracting
 import numpy
 
 def async_shortest_path(G : nx.DiGraph, s, t):
