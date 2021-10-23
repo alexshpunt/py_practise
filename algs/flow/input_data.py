@@ -29,3 +29,26 @@ FlowNetwork2.add_edges_from(
         ('F','G', {"capacity": 9}),
     ]
 )
+
+FlowNetwork3 = nx.DiGraph()
+FlowNetwork3.add_edges_from(
+    [
+        ('s','a', {"capacity": 3}),
+        ('a','b', {"capacity": 1}),
+        ('b','t', {"capacity": 2}),
+    ]
+)
+
+FlowNetwork4 = nx.DiGraph()
+FlowNetwork4.add_edges_from(
+    [
+        ('s','a', {"capacity": 15}),
+        ('s','c', {"capacity": 4}),
+        ('a','b', {"capacity": 12}),
+        ('c','d', {"capacity": 10}),
+        ('d','a', {"capacity": 5}),
+        ('b','c', {"capacity": 3}),
+        ('b','t', {"capacity": 7}),
+        ('d','t', {"capacity": 10}),
+    ]
+)

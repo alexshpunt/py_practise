@@ -16,8 +16,8 @@ def construct_path(pred : dict, s, t):
 def ford_fulkerson(G : nx.DiGraph, s, t):
     def f(u, v):  return Gf.get_edge_data(u,v)["flow"]
     def c(u, v): return Gf.get_edge_data(u,v)["capacity"] 
-    def residual_c(u, v): return c(u,v) - f(u,v) 
-    def bottleneck(p): return min([residual_c(*e) for e in p])
+    def cf(u, v): return c(u,v) - f(u,v) 
+    def bottleneck(p): return min([cf(*e) for e in p])
     
     def push_flow(u,v, df):
         Gf.get_edge_data(u,v)["flow"] += df 
@@ -29,7 +29,7 @@ def ford_fulkerson(G : nx.DiGraph, s, t):
         while stack: 
             cur = stack.pop() 
             for u,v in Gf.edges(cur): 
-                if residual_c(u,v) < scale or v in pred.keys(): continue 
+                if cf(u,v) < scale or v in pred.keys(): continue 
                 stack.append(v)
                 pred[v] = u 
         if not t in pred.keys(): return [] 
@@ -41,11 +41,9 @@ def ford_fulkerson(G : nx.DiGraph, s, t):
         if u != s and v != t: Gf.add_edge(v, u, capacity = 0, flow = 0) 
         
     flow = 0 
-
     max_s_capacity = max([Gf.get_edge_data(*e)['capacity'] for e in Gf.edges(s)])
     scale = pow(2, math.floor(math.log(max_s_capacity)))
     while scale >= 1: 
-        print(scale)    
         while True: 
             path = find_aug_path(s, t, scale)
             if not path: break
@@ -56,5 +54,5 @@ def ford_fulkerson(G : nx.DiGraph, s, t):
     print(flow)
 
 ford_fulkerson(FlowNetwork1, 's', 't')
-print("")
+print()
 ford_fulkerson(FlowNetwork2, 'A', 'G')
